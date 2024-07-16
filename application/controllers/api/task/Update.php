@@ -74,11 +74,13 @@ class Update extends \Restserver\Libraries\REST_Controller {
             'id' => $id,
         ];
 
-        if ($this->post('title')) {
+        if ($this->post('title') && $this->post('title') != '')
+        {
             $task_data['title'] = $this->post('title');
         }
 
-        if ($this->post('isDone')) {
+        if ($this->post('isDone')) 
+        {
             $task_data['is_done'] = $this->post('isDone');
         }
 

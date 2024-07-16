@@ -73,3 +73,4 @@ $route['api/user/(:any)'] = 'api/user/user/user_by_email/$1';
 $route['api/task/list'] = 'api/task/task/list_tasks/$1';
 $route['api/task/create'] = 'api/task/create/create_task';
 $route['api/task/update'] = 'api/task/update/update_task';
+$route['api/task/delete'] = 'api/task/delete/delete_task';

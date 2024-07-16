@@ -3,10 +3,10 @@
 class Task_model extends CI_Model
 {
 
-    public function list_task($user_id, $is_done = null)
+    public function list_task($user_id, $is_done = -1)
     {
         $this->db->where('user_id', $user_id);
-        if (!is_null($is_done))
+        if ($is_done >= 0)
         {
             $this->db->where('is_done', $is_done);
         }
@@ -21,6 +21,21 @@ class Task_model extends CI_Model
         $query->free_result();
 
         return $tasks;
+    }
+
+    public function task_by_id($task_id)
+    {
+        $query = $this->db->where('id', $task_id)->get('tasks');
+        if ($query->num_rows() == 0)
+        {
+            return false;
+        }
+
+        $task = $query->row();
+
+        $query->free_result();
+
+        return $task;
     }
 
     public function insert_task($task_data)
@@ -43,6 +58,19 @@ class Task_model extends CI_Model
         if ($this->db->affected_rows() > 0) {
             return true;
         } else {
+            return false;
+        }
+    }
+
+    public function delete_task($task_id)
+    {
+        $this->db->where('id', $task_id)->delete('tasks');
+
+        if ($this->db->affected_rows() > 0)
+        {
+            return true;
+        } else 
+        {
             return false;
         }
     }

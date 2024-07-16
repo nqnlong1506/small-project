@@ -15,7 +15,7 @@ require APPPATH . '/libraries/REST_Controller.php';
  * @license         MIT
  * @link            https://github.com/chriskacerguis/codeigniter-restserver
  */
-class Task extends \Restserver\Libraries\REST_Controller {
+class Delete extends \Restserver\Libraries\REST_Controller {
 
     function __construct()
     {
@@ -23,7 +23,7 @@ class Task extends \Restserver\Libraries\REST_Controller {
         parent::__construct();
 
         $this->methods['tasks_get']['limit'] = 500; // 500 requests per hour per user/key
-        $this->methods['tasks']['limit'] = 100; // 100 requests per hour per user/key
+        $this->methods['tasks_post']['limit'] = 100; // 100 requests per hour per user/key
         $this->methods['tasks_delete']['limit'] = 50; // 50 requests per hour per user/key
 
         $this->load->model('Task_model');
@@ -31,7 +31,7 @@ class Task extends \Restserver\Libraries\REST_Controller {
         $this->load->helper('json_response');
     }
 
-    public function list_tasks_get()
+    public function delete_task_post()
     {
         // verify token
         $session_id = $this->input->get_request_header('session-id');
@@ -57,25 +57,38 @@ class Task extends \Restserver\Libraries\REST_Controller {
             return;
         }
         // end verify token
-
-        $is_done = $this->input->get('isdone', true);
-        if (!is_null($is_done)) 
+        
+        // validate task
+        $task_id = $this->post('task_id');
+        if ($task_id == null || $task_id == '') 
         {
-            $tasks = $this->Task_model->list_task($user->id, $is_done);
-        } 
-        else 
-        {
-            $tasks = $this->Task_model->list_task($user->id);
+            $message = json_response(false, 'id of task required.');
+            $this->response($message, \Restserver\Libraries\REST_Controller::HTTP_BAD_REQUEST);
+            
+            return;
         }
 
-        if (!$tasks) 
+        $task = $this->Task_model->task_by_id($task_id);
+        if (!$task) 
         {
-            $message = json_response(false, 'tasks not found.');
+            $message = json_response(false, 'task does not exist.');
             $this->response($message, \Restserver\Libraries\REST_Controller::HTTP_BAD_REQUEST);
+        }
+        // end validate task
+
+        // delete task
+        $delete_task = $this->Task_model->delete_task($task_id);
+
+        if (!$delete_task) 
+        {
+            $message = json_response(false, 'delete task failed.');
+            $this->response($message, \Restserver\Libraries\REST_Controller::HTTP_INTERNAL_SERVER_ERROR);
 
             return;
-        } 
-        $message = json_response(true, 'list tasks.', $tasks);
+        }
+
+        $message = json_response(true, 'delete task successfully.');
+
         $this->response($message, \Restserver\Libraries\REST_Controller::HTTP_OK);
     }
 }
