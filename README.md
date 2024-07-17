@@ -2,6 +2,8 @@
 
 ## Set up mysql using docker
 
-### haha
+### install docker desktop
+> https://docs.docker.com/engine/install/
 
-#### huhu
+### pull MySQL image
+> docker pull mysql:latest
