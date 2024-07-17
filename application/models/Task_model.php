@@ -38,6 +38,23 @@ class Task_model extends CI_Model
         return $task;
     }
 
+    public function get_task($task_id, $user_id)
+    {
+        $this->db->where('id', $task_id);
+        $this->db->where('user_id', $user_id);
+        $query = $this->db->get('tasks');
+        if ($query->num_rows() == 0)
+        {
+            return false;
+        }
+
+        $task = $query->row();
+
+        $query->free_result();
+
+        return $task;
+    }
+
     public function insert_task($task_data)
     {
         $insert = $this->db->insert('tasks', $task_data);
@@ -51,8 +68,13 @@ class Task_model extends CI_Model
 
     public function update_task($task_data)
     {
+        $data = [
+            'title' => $task_data['title'],
+            'is_done'=> $task_data['is_done'],
+        ];
         $this->db->where('id', $task_data['id']);
-        $this->db->update('tasks', $task_data);
+        $this->db->update('tasks', $data);
+        // error_log('checking'. json_encode($this->db)); 
 
         // Optionally check if the update was successful
         if ($this->db->affected_rows() > 0) {

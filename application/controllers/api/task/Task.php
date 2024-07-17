@@ -35,11 +35,17 @@ class Task extends \Restserver\Libraries\REST_Controller {
     {
         // verify token
         $session_id = $this->input->get_request_header('session-id');
+        if ($session_id == '') {
+            $message = json_response(false, 'token required.');
+            $this->response($message, \Restserver\Libraries\REST_Controller::HTTP_NETWORK_AUTHENTICATION_REQUIRED);
+
+            return;
+        }
         $session = json_decode($session_id, true);
 
         error_log(($session['email']));
 
-        $expiered_at = new DateTime($session['expried_at']);
+        $expiered_at = new DateTime($session['expired_at']);
         $now = new DateTime(date('Y-m-d H:i:s', time()));
 
         if ($expiered_at < $now) {
@@ -71,11 +77,57 @@ class Task extends \Restserver\Libraries\REST_Controller {
         if (!$tasks) 
         {
             $message = json_response(false, 'tasks not found.');
-            $this->response($message, \Restserver\Libraries\REST_Controller::HTTP_BAD_REQUEST);
+            $this->response($message, \Restserver\Libraries\REST_Controller::HTTP_NOT_FOUND);
 
             return;
         } 
         $message = json_response(true, 'list tasks.', $tasks);
+        $this->response($message, \Restserver\Libraries\REST_Controller::HTTP_OK);
+    }
+
+    public function task_by_id_get($task_id)
+    {
+        // verify token
+        $session_id = $this->input->get_request_header('session-id');
+        if ($session_id == '') {
+            $message = json_response(false, 'token required.');
+            $this->response($message, \Restserver\Libraries\REST_Controller::HTTP_NETWORK_AUTHENTICATION_REQUIRED);
+
+            return;
+        }
+        $session = json_decode($session_id, true);
+
+        error_log(($session['email']));
+
+        $expiered_at = new DateTime($session['expired_at']);
+        $now = new DateTime(date('Y-m-d H:i:s', time()));
+
+        if ($expiered_at < $now) {
+            $message = json_response(false, 'token expired.');
+            $this->response($message, \Restserver\Libraries\REST_Controller::HTTP_NETWORK_AUTHENTICATION_REQUIRED);
+
+            return;
+        } 
+        $user = $this->User_model->user_by_email($session['email']);
+
+        if (!$user) {
+            $message = json_response(false, 'user not found.');
+            $this->response($message, \Restserver\Libraries\REST_Controller::HTTP_NETWORK_AUTHENTICATION_REQUIRED);
+
+            return;
+        }
+        // end verify token
+
+        // get task by id
+        $tasks = $this->Task_model->get_task($task_id, $user->id);
+        if (!$tasks) {
+            $message = json_response(false, 'task not found');
+            $this->response($message, \Restserver\Libraries\REST_Controller::HTTP_NOT_FOUND);
+
+            return;
+        }
+
+        $message = json_response(true, 'get task.', $tasks);
         $this->response($message, \Restserver\Libraries\REST_Controller::HTTP_OK);
     }
 }

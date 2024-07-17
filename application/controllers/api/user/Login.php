@@ -59,7 +59,16 @@ class Login extends \Restserver\Libraries\REST_Controller {
             return;
         }
 
-        $message = json_response(true, 'login successfully.', ['token' => $login->email]);
+        $expiredAt = new DateTime(date('Y-m-d H:i:s', time()));
+        $expiredAt->modify('+2 hours');
+        // error_log($expiredAt->format('Y-m-d H:i:s'));
+
+        $token = [
+            'email'=> $login->email,
+            'expired_at'=> $expiredAt->format('Y-m-d H:i:s')
+        ];
+
+        $message = json_response(true, 'login successfully.', ['token' => json_encode($token, true)]);
 
         $this->response($message, \Restserver\Libraries\REST_Controller::HTTP_OK);
     }

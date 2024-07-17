@@ -35,11 +35,17 @@ class Delete extends \Restserver\Libraries\REST_Controller {
     {
         // verify token
         $session_id = $this->input->get_request_header('session-id');
+        if ($session_id == '') {
+            $message = json_response(false, 'token required.');
+            $this->response($message, \Restserver\Libraries\REST_Controller::HTTP_NETWORK_AUTHENTICATION_REQUIRED);
+
+            return;
+        }
         $session = json_decode($session_id, true);
 
         error_log(($session['email']));
 
-        $expiered_at = new DateTime($session['expried_at']);
+        $expiered_at = new DateTime($session['expired_at']);
         $now = new DateTime(date('Y-m-d H:i:s', time()));
 
         if ($expiered_at < $now) {

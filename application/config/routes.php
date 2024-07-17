@@ -70,6 +70,7 @@ $route['api/user/list'] = 'api/user/user/list_users';
 $route['api/user/(:any)'] = 'api/user/user/user_by_email/$1';
 
 // Tasks of User
+$route['api/task/task/(:any)'] = 'api/task/task/task_by_id/$1';
 $route['api/task/list'] = 'api/task/task/list_tasks/$1';
 $route['api/task/create'] = 'api/task/create/create_task';
 $route['api/task/update'] = 'api/task/update/update_task';
