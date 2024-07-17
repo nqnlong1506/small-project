@@ -10,6 +10,7 @@ class Task_model extends CI_Model
         {
             $this->db->where('is_done', $is_done);
         }
+        // $this->db->limit(5,5);
         $query = $this->db->get('tasks');
         if ($query->num_rows() == 0) {
             return false;
